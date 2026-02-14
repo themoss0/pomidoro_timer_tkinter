@@ -22,7 +22,11 @@ class MenuWidget:
         preset_menu = tk.Menu(self.menu_bar, tearoff=0)
 
         preset_menu.add_command(label='25/5/30', command=lambda: self.timer.change_preset(Time.TIME_25_05_30))
-        preset_menu.add_command(label='30/5/30', command=lambda: self.timer.change_preset(Time.TIME_30_05_30))
+        preset_menu.add_command(label='15/3/20', command=lambda: self.timer.change_preset(Time.TIME_15_03_20))
+        preset_menu.add_command(label='30/05/30', command=lambda: self.timer.change_preset(Time.TIME_30_05_30))
+        preset_menu.add_command(label='30/10/25', command=lambda: self.timer.change_preset(Time.TIME_30_10_25))
+        preset_menu.add_command(label='45/10/30', command=lambda: self.timer.change_preset(Time.TIME_45_10_30))
+        preset_menu.add_command(label='50/15/30', command=lambda: self.timer.change_preset(Time.TIME_50_15_30))
         preset_menu.add_command(label='60/10/60', command=lambda: self.timer.change_preset(Time.TIME_60_10_60))
         preset_menu.add_command(label='180/30/60', command=lambda: self.timer.change_preset(Time.TIME_180_30_60))
 

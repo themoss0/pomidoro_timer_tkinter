@@ -24,7 +24,7 @@ class Timer(tk.Frame):
         self.time_rest_seconds = self.time[1]
         self.time_long_rest_seconds = self.time[2]
 
-        self.is_sound_played = False
+        self.warning_played_for_current_interval = False
         self.sound = get_sound_manager()
 
         self._create_ui()
@@ -36,7 +36,7 @@ class Timer(tk.Frame):
     def _create_ui(self):
         self.timer_label = tk.Label(
             self,
-            text=f'{self.time[0]//60:02d}:{self.time[0]%60:02d}',
+            text=self.check_time(total_time=self.time_work_seconds, hours=self.time_work_seconds // 3600, minutes=(self.time_work_seconds%3600)//60, seconds=self.time_work_seconds%60),
             font=('Arial', 48)
         )
         self.timer_label.pack(pady=10)
@@ -54,7 +54,7 @@ class Timer(tk.Frame):
         self.start_button: tk.Button = tk.Button(
             btn_frame, 
             text=self.localization.get('start_btn'), 
-            command=self.start, 
+            command=self.start,
             bg=self.theme_manager.get('start_bg'), 
             fg=self.theme_manager.get('start_fg'), 
             width=8)
@@ -79,7 +79,7 @@ class Timer(tk.Frame):
 
 
 
-    def _update_timer(self):
+    def _update_timer(self) -> None:
 
         is_running: bool = self.timervm.get_running_mode()
 
@@ -89,10 +89,7 @@ class Timer(tk.Frame):
                 self.status_label.config(text=f"{self.localization.get('work')} {self.timervm.cycle_count+1}/4", fg=self._get_status_color())
                 if (self.time_work_seconds > 0):
                     self.time_work_seconds -= 1
-                    minutes = self.time_work_seconds // 60
-                    seconds = self.time_work_seconds % 60
-                    self.timer_label.config(text=f'{minutes:02d}:{seconds:02d}')
-
+                    self.update_time_ui(self.time_work_seconds)
                     if (self.time_work_seconds == 0):
                         self.timervm.cycle_count += 1
                         self.sound.play_async('interval')
@@ -106,23 +103,21 @@ class Timer(tk.Frame):
                             self.timervm.set_rest_configuration()
             #======== REST ========
             elif (self.timervm.state == State.REST):
-                self.status_label.config(text=f"{self.localization.get('rest')} {self.timervm.cycle_count+1}/4", fg=self._get_status_color())
+                self.status_label.config(text=f"{self.localization.get('rest')} {self.timervm.cycle_count}/4", fg=self._get_status_color())
                 #print('===REST===')
                 if (self.time_rest_seconds > 0):
                     self.time_rest_seconds -= 1
-                    minutes = self.time_rest_seconds // 60
-                    seconds = self.time_rest_seconds % 60
-                    self.timer_label.config(text=f'{minutes:02d}:{seconds:02d}')
+                    self.update_time_ui(self.time_rest_seconds)
 
                     if (self.time_rest_seconds <= 9 and self.time_rest_seconds > 0):
-                        if not(self.is_sound_played):
+                        if not(self.warning_played_for_current_interval):
                             self.sound.play_async('warning')
-                            self.is_sound_played = True
+                            self.warning_played_for_current_interval = True
                     else:
-                        self.is_sound_played = False
+                        self.warning_played_for_current_interval = False
 
                     if (self.time_rest_seconds == 0):
-                        self.is_sound_played = False
+                        self.warning_played_for_current_interval = False
                         self.reset_timer_for_state(State.WORK)
                         self.timervm.set_work_configuration()
             #======== LONG_REST ========
@@ -130,17 +125,16 @@ class Timer(tk.Frame):
                 self.status_label.config(text=f"{self.localization.get('long_rest')} 4/4", fg=self._get_status_color())
                 if (self.time_long_rest_seconds > 0):
                     self.time_long_rest_seconds -=1
-                    minutes = self.time_long_rest_seconds // 60
-                    seconds = self.time_long_rest_seconds % 60
-                    self.timer_label.config(text=f'{minutes:02d}:{seconds:02d}')
+                    self.update_time_ui(self.time_long_rest_seconds)
                     if (self.time_long_rest_seconds <= 9 and self.time_long_rest_seconds > 0):
-                        if not(self.is_sound_played):
+                        if not(self.warning_played_for_current_interval):
                             self.sound.play_async('warning')
-                            self.is_sound_played = True
+                            self.warning_played_for_current_interval = True
                     else:
-                        self.is_sound_played = False
+                        self.warning_played_for_current_interval = False
                     if (self.time_long_rest_seconds == 0):
                         self.is_sound_played = False
+                        self.warning_played_for_current_interval = False
                         self.reset_timer_for_state(State.WORK)
                         self.timervm.set_work_configuration()
 
@@ -151,7 +145,7 @@ class Timer(tk.Frame):
 
         self.after(1000, self._update_timer)
 
-    def _apply_preset(self):
+    def _apply_preset(self) -> None:
         self.time = self.timervm.get_seconds_of_time()
 
         if (self.timervm.state in (State.IDLE, State.PAUSED)):
@@ -160,7 +154,20 @@ class Timer(tk.Frame):
         else:
             pass
 
-    def change_preset(self, preset: Time):
+
+    def check_time(self, total_time, hours, minutes, seconds) -> str:
+        if total_time >= 3600:
+            return f'{hours:02d}:{minutes:02d}:{seconds:02d}'
+        return f'{minutes:02d}:{seconds:02d}'
+    
+    def update_time_ui(self, total_seconds: int):
+        hours = total_seconds// 3600
+        minutes = (total_seconds % 3600) // 60
+        seconds = total_seconds % 60
+        self.timer_label.config(text=self.check_time(total_time=total_seconds, hours=hours, minutes=minutes, seconds=seconds))
+    
+
+    def change_preset(self, preset: Time) -> None:
         """Смена пресета времени"""
         if (self.timervm.state not in (State.IDLE, State.PAUSED)):
            self._show_warning("Смена пресета доступна только на паузе или в режиме ожидания")
@@ -171,7 +178,7 @@ class Timer(tk.Frame):
 
         self._show_info(f"Пресет изменён на {preset.name}")
 
-    def change_theme(self, theme_name: str):
+    def change_theme(self, theme_name: str) -> None:
         if (self.theme_manager):
             print(f"\n🎨 Смена темы на {theme_name}")
             self.theme_manager.apply_theme(widget=self.master, theme_name=theme_name, source='change_theme')
@@ -198,7 +205,7 @@ class Timer(tk.Frame):
             if hasattr(self.master, 'menu'):
                 self.master.menu.update_language()
 
-    def _get_status_color(self):
+    def _get_status_color(self) -> str:
         """Получение цвета для текущего состояния из темы"""
         #print(f'текущая тема: {self.theme_manager.current_theme}')
         if (not self.theme_manager):
@@ -225,16 +232,16 @@ class Timer(tk.Frame):
         return theme.get(color_key, theme['fg'])
 
 
-    def set_theme_manager(self, theme_manager: ThemeManager):
+    def set_theme_manager(self, theme_manager: ThemeManager) -> None:
         """Отвечает за установку менеджера тем"""
         self.theme_manager = theme_manager
         
 
-    def set_localization(self, localization: Localization):
+    def set_localization(self, localization: Localization) -> None:
         """Отвечает за установку локализации"""
         self.localization = localization
 
-    def _update_language(self):
+    def _update_language(self) -> None:
         """Обновление текстов при смене языка"""
         if not self.localization:
             return
@@ -247,10 +254,10 @@ class Timer(tk.Frame):
 
         self.master.title(self.localization.get('app_title'))
 
-    def _show_warning(self, message: str):
+    def _show_warning(self, message: str) -> None:
         messagebox.showwarning(title="Внимание", message=message)    
 
-    def _show_info(self, message: str):
+    def _show_info(self, message: str) -> None:
         messagebox.showinfo(title="Внимание", message=message)  
 
     def reset_timer_for_state(self, state: State) -> None:
@@ -279,7 +286,7 @@ class Timer(tk.Frame):
             return self.localization.get('pomidoro')
 
         
-    def check_state(self):
+    def check_state(self) -> None:
         state = self.timervm.state
         current_time = self.timervm.get_seconds_of_time()
         if state == State.IDLE:
@@ -300,7 +307,15 @@ class Timer(tk.Frame):
         self.time_work_seconds = self.time[0]
         self.time_rest_seconds = self.time[1]
         self.time_long_rest_seconds = self.time[2]
-        self.timer_label.config(text=f'{self.time[0]//60:02d}:{self.time[0]%60:02d}') 
+
+        if (self.timervm.state == State.REST):
+            seconds = self.time_rest_seconds
+        elif (self.timervm.state == State.LONG_REST):
+            seconds = self.time_long_rest_seconds
+        else:
+            seconds = self.time_work_seconds
+
+        self.timer_label.config(text=self.check_time(total_time=seconds, hours=seconds//3600, minutes=(seconds%3600)//60, seconds=seconds%60))  
         print(f'ВРЕМЯ: {self.time}')
         self.status_label.config(text=self.localization.get('pomidoro'), fg=self._get_status_color())       
 
@@ -316,10 +331,12 @@ class Timer(tk.Frame):
         if (self.timervm.state == State.WORK or self.timervm.state == State.REST or self.timervm.state == State.LONG_REST):
             self.timervm.set_paused_configuration()
             self.is_sound_played = False
+            self.warning_played_for_current_interval = False
 
     def reset(self) -> None:
         self.timervm.set_reset_configuration()
         self._reset_time_values()
+        self.warning_played_for_current_interval = False
         self.is_sound_played = False
         
 
