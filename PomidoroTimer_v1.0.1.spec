@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='PomidoroTimer_v1.0.0',
+    name='PomidoroTimer_v1.0.1',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

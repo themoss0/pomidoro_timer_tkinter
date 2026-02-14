@@ -1,4 +1,4 @@
-('C:\\Users\\Admin\\Documents\\github\\pomidoro_timer_tkinter\\build\\PomidoroTimer_v1.0.0\\PYZ-00.pyz',
+('C:\\Users\\Admin\\Documents\\github\\pomidoro_timer_tkinter\\build\\PomidoroTimer_v1.0.1\\PYZ-00.pyz',
  [('__future__',
    'C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\__future__.py',
    'PYMODULE'),
