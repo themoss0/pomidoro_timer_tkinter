@@ -10,7 +10,7 @@ class SoundManager:
         self.sounds = {}
         self._load_sounds()
     
-    def _resource_path(self, relative_path):
+    def _resource_path(self, relative_path) -> str:
         """Получить путь к файлу в .exe или .py"""
         try:
             # Для .exe: pyinstaller создает временную папку _MEIPASS
@@ -40,7 +40,7 @@ class SoundManager:
             except Exception as e:
                 print(f"❌ Ошибка загрузки {name}: {e}")
     
-    def play(self, sound_name, block=False):
+    def play(self, sound_name, block=False) -> bool:
         """Воспроизвести звук"""
         if sound_name in self.sounds:
             try:
@@ -52,7 +52,7 @@ class SoundManager:
             print(f"⚠️ Звук не найден: {sound_name}")
         return False
     
-    def play_async(self, sound_name):
+    def play_async(self, sound_name) -> bool:
         """Асинхронное воспроизведение (по умолчанию)"""
         return self.play(sound_name, block=False)
     

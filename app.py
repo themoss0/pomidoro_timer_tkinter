@@ -10,10 +10,12 @@ from viewmodel.timer_view_model import State, Time, TimerViewModel
 from widgets.menu_widget import MenuWidget
 
 class Config:
+    """Класс, задающий основные конфигурации окну приложения"""
     WINDOW_SIZE='300x400'
     WINDOW_TITLE='Pomidoro'
 
 class Application:
+    """Класс приложения. Здесь идёт создание приложения, настройка всех дочерних классу Timer классов(Localization, ThemeManager)"""
     def __init__(self):
         self.app=tk.Tk()
         self.app.resizable(False, False)
@@ -64,10 +66,12 @@ class Application:
 
 
     def _setup_window(self):
+        """Настройка окна. Размеры, заголовок"""
         self.app.title(Config.WINDOW_TITLE)
         self.app.geometry(Config.WINDOW_SIZE)
 
     def _setup_timer(self):
+        """Расположение на экране объекта класса Timer"""
         self.timer.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
 
     def _setup_menu(self):
@@ -76,4 +80,5 @@ class Application:
         self.app.menu = self.menu
 
     def run(self):
+        """Запуск приложения"""
         self.app.mainloop()

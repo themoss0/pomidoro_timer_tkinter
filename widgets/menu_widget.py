@@ -4,8 +4,8 @@ from model.timer import Timer
 from viewmodel.timer_view_model import Time
 
 class MenuWidget:
-
-    def __init__(self, parent, app, timer, localization):
+    """Класс, отвечающий за отрисовку и поведение меню"""
+    def __init__(self, parent, app, timer, localization) -> None:
         self.parent = parent
         self.app = app
         self.localization = localization
@@ -15,8 +15,8 @@ class MenuWidget:
         self._setup_menu()
         parent.config(menu=self.menu_bar)
 
-    def _setup_menu(self):
-        """Отрисовка"""
+    def _setup_menu(self) -> None:
+        """Отрисовка меню: установка кнопок, создание команд для них"""
 
         # === МЕНЮ "ПРЕСЕТЫ ВРЕМЕНИ" ===
         preset_menu = tk.Menu(self.menu_bar, tearoff=0)
@@ -57,7 +57,3 @@ class MenuWidget:
         lang_menu.add_command(label="English", command=lambda: self.timer.change_language('en'))
 
         self.menu_bar.add_cascade(label=self.localization.get('menu_language'), menu=lang_menu)
-
-    def update_language(self):
-        self.menu_bar.delete(0, tk.END)
-        self._setup_menu()

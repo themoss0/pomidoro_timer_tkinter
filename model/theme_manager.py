@@ -1,6 +1,7 @@
 import tkinter as tk
 
 class ThemeManager:
+    """Класс, отвечающий за отрисовку цветов(тем) приложения"""
     THEMES = {
         'light': {
             'bg': '#ffffff',
@@ -80,15 +81,18 @@ class ThemeManager:
         self.current_theme = current_theme
 
     def apply_theme(self, widget, theme_name: str, source='unknown'):
+        """Применение темы по названию"""
         print(f"\n🎨 apply_theme({theme_name}) вызван из: {source}")
         self.current_theme = theme_name
         theme = self.THEMES[theme_name]
         self._apply_theme_to_widget(widget, theme)
 
     def get(self, key: str):
+        """Получение поля словаря по ключу, учитывая выбранную пользователем тему"""
         return self.THEMES[self.current_theme].get(key, key)
 
     def _apply_theme_to_widget(self, widget, theme):
+        """Рекурсивная функция, которая перебирает каждый виджет экрана и перерисовывает их согласно цвету темы"""
         try:
             widget_type = widget.__class__.__name__
             print(f"  📦 Обрабатываю {widget_type}")

@@ -1,5 +1,5 @@
 class Localization:
-
+    """Класс, отвечающий за локализацию интерфейса"""
     TRANSLATIONS = {
         'ru': {
             # СТАТУСЫ
@@ -53,7 +53,9 @@ class Localization:
         self.lang_code = initial_lang
 
     def get(self, key: str):
+        """Возвращает поле словаря по ключу, учитывая выбранный пользователем язык"""
         return self.TRANSLATIONS[self.lang_code].get(key, key)
     
     def set_language(self, new_lang_code: str):
+        """Установка языка"""
         self.lang_code = new_lang_code

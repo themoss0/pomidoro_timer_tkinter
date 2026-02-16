@@ -11,6 +11,7 @@ from sound_manager import get_sound_manager
 from viewmodel.timer_view_model import State, Time, TimerViewModel
 
 class Timer(tk.Frame):
+    """Класс Timer. На нём лежит ответственность за реализацию всех функций других классов. Непосредственное поведение приложения"""
     def __init__(self, parent, timervm, theme_manager, localization):
         super().__init__(parent)
 
@@ -33,7 +34,8 @@ class Timer(tk.Frame):
         self.master.update()
         self._update_timer()
 
-    def _create_ui(self):
+    def _create_ui(self) -> None:
+        """Создание интерфейса: отрисовка надписей, кнопок"""
         self.timer_label = tk.Label(
             self,
             text=self.check_time(total_time=self.time_work_seconds, hours=self.time_work_seconds // 3600, minutes=(self.time_work_seconds%3600)//60, seconds=self.time_work_seconds%60),
@@ -80,7 +82,7 @@ class Timer(tk.Frame):
 
 
     def _update_timer(self) -> None:
-
+        """Основной цикл: анализирует состояние таймера и переопределяет viewmodel на данные, соответствующие состоянию"""
         is_running: bool = self.timervm.get_running_mode()
 
         if (is_running):
@@ -146,6 +148,12 @@ class Timer(tk.Frame):
         self.after(1000, self._update_timer)
 
     def _apply_preset(self) -> None:
+        """
+        Применение нового пресета времени.
+        1) Берётся всё время (в секундах)
+        2) Проверяется, мы в ожидании или в паузе?
+        3) Если 2 -> меняем значения времени по новому пресету
+        """
         self.time = self.timervm.get_seconds_of_time()
 
         if (self.timervm.state in (State.IDLE, State.PAUSED)):
@@ -156,11 +164,17 @@ class Timer(tk.Frame):
 
 
     def check_time(self, total_time, hours, minutes, seconds) -> str:
+        """
+        Грамотное отображение времени
+        1) Если времени час и более - у нас три числа(чч:мм:сс)
+        2) Иначе - два (мм:сс)
+        """
         if total_time >= 3600:
             return f'{hours:02d}:{minutes:02d}:{seconds:02d}'
         return f'{minutes:02d}:{seconds:02d}'
     
     def update_time_ui(self, total_seconds: int):
+        """Обновление timer label"""
         hours = total_seconds// 3600
         minutes = (total_seconds % 3600) // 60
         seconds = total_seconds % 60
@@ -179,6 +193,7 @@ class Timer(tk.Frame):
         self._show_info(f"Пресет изменён на {preset.name}")
 
     def change_theme(self, theme_name: str) -> None:
+        """Изменение темы"""
         if (self.theme_manager):
             print(f"\n🎨 Смена темы на {theme_name}")
             self.theme_manager.apply_theme(widget=self.master, theme_name=theme_name, source='change_theme')
@@ -192,12 +207,13 @@ class Timer(tk.Frame):
             print(f"🎨 Статус цвет: {status_color}")
             self.status_label.config(fg=status_color)
 
-            self.master.update_idletasks()  # Обновить макет
+            self.master.update_idletasks() 
             self.master.update() 
 
             print(f"✅ Тема {theme_name} применена\n")
 
     def change_language(self, lang_code: str):
+        """Изменение языка"""
         if (self.localization):
             self.localization.set_language(lang_code)
             self._update_language()
@@ -255,12 +271,15 @@ class Timer(tk.Frame):
         self.master.title(self.localization.get('app_title'))
 
     def _show_warning(self, message: str) -> None:
+        """Отображение предупреждения"""
         messagebox.showwarning(title="Внимание", message=message)    
 
     def _show_info(self, message: str) -> None:
-        messagebox.showinfo(title="Внимание", message=message)  
+        """Отображение информации"""
+        messagebox.showinfo(title="Информация", message=message)  
 
     def reset_timer_for_state(self, state: State) -> None:
+        """Изменение времени на таймере, основываясь на состоянии таймера"""
         current_times = self.timervm.get_seconds_of_time()
     
         if (state == State.WORK):
@@ -271,6 +290,7 @@ class Timer(tk.Frame):
             self.time_long_rest_seconds = current_times[2]
 
     def _get_status_text(self) -> str:
+        """Получение статуса"""
         if not self.localization:
             return 
         state = self.timervm.state
@@ -287,6 +307,7 @@ class Timer(tk.Frame):
 
         
     def check_state(self) -> None:
+        """Проверка состояния. Запускается в начале работы таймера. Устанавливает поля viewmodel по умолчанию, полагаясь на состояние"""
         state = self.timervm.state
         current_time = self.timervm.get_seconds_of_time()
         if state == State.IDLE:
@@ -321,19 +342,21 @@ class Timer(tk.Frame):
 
 
     def start(self) -> None:
-        #print('===START===')
+        """Запуск таймера"""
         self.timervm.set_running_mode(mode=True)
         self.check_state()
 
         
 
     def pause(self) -> None:
+        """Пауза таймера"""
         if (self.timervm.state == State.WORK or self.timervm.state == State.REST or self.timervm.state == State.LONG_REST):
             self.timervm.set_paused_configuration()
             self.is_sound_played = False
             self.warning_played_for_current_interval = False
 
     def reset(self) -> None:
+        """Перезапуск таймера"""
         self.timervm.set_reset_configuration()
         self._reset_time_values()
         self.warning_played_for_current_interval = False
