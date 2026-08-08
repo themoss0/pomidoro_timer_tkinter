@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 
-from pomodoro.views.components.timer_display import TimerDisplay
+from src.pomodoro.feature.timer.view.components.timer_display import TimerDisplay
 
 
 class MainWindow:

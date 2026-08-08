@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from pomodoro.views.main_window import MainWindow
+from src.pomodoro.feature.timer.view.main_window import MainWindow
 
 
 def main():
