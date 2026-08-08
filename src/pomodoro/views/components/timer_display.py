@@ -12,7 +12,7 @@ class TimerDisplay(ttk.Frame):
         self.time_label = ttk.Label(
             master=self,
             text="25:00",
-            font=("Helvetica", 64, "Bold")
+            font=("Helvetica", 64, "bold")
         )
         self.time_label.pack()
 
